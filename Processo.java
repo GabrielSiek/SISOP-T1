@@ -1,80 +1,187 @@
 
 public class Processo {
-    String nome;
-    int tempoExecutando;
-    int surtoCPU;
+
+    String id;
     int tempoES;
     int tempoTotalCPU;
+    int tempoBloqueado;
+    int tempoExecucao;
+    int surtoCPU;
     int ordem;
     int prioridade;
-    int creditos;
-    int tempoBloqueado;
-    boolean bloqueado;
-    boolean terminou;
+    int creditosRestantes;
+    boolean estaBloqueado;
+    boolean finalizado;
 
-    public Processo(String nome, int surtoCPU, int tempoES, int tempoTotalCPU, int ordem, int prioridade) {
-        this.nome = nome;
+
+    public Processo(String id, int surtoCPU, int tempoES, int tempoTotalCPU, int ordem, int prioridade) {
+        this.id = id;
         this.surtoCPU = surtoCPU;
         this.tempoES = tempoES;
         this.tempoTotalCPU = tempoTotalCPU;
-        this.tempoExecutando = 0;
+        this.tempoExecucao = 0;
         this.ordem = ordem;
         this.prioridade = prioridade;
-        this.creditos = prioridade;
+        this.creditosRestantes = prioridade;
         this.tempoBloqueado = 0;
-        this.bloqueado = false;
-        this.terminou = false;
+        this.estaBloqueado = false;
+        this.finalizado = false;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getTempoES() {
+        return tempoES;
+    }
+
+    public void setTempoES(int tempoES) {
+        this.tempoES = tempoES;
+    }
+
+    public int getTempoTotalCPU() {
+        return tempoTotalCPU;
+    }
+
+    public void setTempoTotalCPU(int tempoTotalCPU) {
+        this.tempoTotalCPU = tempoTotalCPU;
+    }
+
+    public int getTempoBloqueado() {
+        return tempoBloqueado;
+    }
+
+    public void setTempoBloqueado(int tempoBloqueado) {
+        this.tempoBloqueado = tempoBloqueado;
+    }
+
+    public int getTempoExecucao() {
+        return tempoExecucao;
+    }
+
+    public void setTempoExecucao(int tempoExecucao) {
+        this.tempoExecucao = tempoExecucao;
+    }
+
+    public int getSurtoCPU() {
+        return surtoCPU;
+    }
+
+    public void setSurtoCPU(int surtoCPU) {
+        this.surtoCPU = surtoCPU;
+    }
+
+    public int getOrdem() {
+        return ordem;
+    }
+
+    public void setOrdem(int ordem) {
+        this.ordem = ordem;
+    }
+
+    public int getPrioridade() {
+        return prioridade;
+    }
+
+    public void setPrioridade(int prioridade) {
+        this.prioridade = prioridade;
+    }
+
+    public int getCreditosRestantes() {
+        return creditosRestantes;
+    }
+
+    public void setCreditosRestantes(int creditosRestantes) {
+        this.creditosRestantes = creditosRestantes;
+    }
+
+    public boolean isEstaBloqueado() {
+        return estaBloqueado;
+    }
+
+    public void setEstaBloqueado(boolean estaBloqueado) {
+        this.estaBloqueado = estaBloqueado;
+    }
+
+    public boolean isFinalizado() {
+        return finalizado;
+    }
+
+    public void setFinalizado(boolean finalizado) {
+        this.finalizado = finalizado;
     }
 
     public void executar() {
-        if (creditos > 0 && !bloqueado) {
-            creditos--;
+        if (creditosRestantes > 0 && !estaBloqueado) {
+            creditosRestantes--;
             tempoTotalCPU--;
-            tempoExecutando++;
+            tempoExecucao++;
         }
     }
 
+
+
+    public boolean getEstaPronto() {
+        return !estaBloqueado && tempoTotalCPU > 0;
+    }
+
+    public boolean getEstaTerminado() {
+        return tempoTotalCPU <= 0;
+    }
+
+    public boolean getEstaBloqueado() {
+        return estaBloqueado;
+    }
+
+
     public void bloquear() {
-        if (tempoExecutando >= surtoCPU && !bloqueado && tempoES > 0) {
-            bloqueado = true;
+        if (tempoExecucao >= surtoCPU && !estaBloqueado && tempoES > 0) {
+            estaBloqueado = true;
             tempoBloqueado = tempoES;
-            System.out.println(nome + " está bloqueado por " + tempoBloqueado + " unidades de tempo.");
-            tempoExecutando = 0;
+            System.out.println(id + " está bloqueado por " + tempoBloqueado + " unidades de tempo.");
+            tempoExecucao = 0;
         }
     }
 
     public void desbloquear() {
-        bloqueado = false;
+        estaBloqueado = false;
 
-    }
-
-    public boolean estaPronto() {
-        return !bloqueado && tempoTotalCPU > 0;
-    }
-
-    public boolean estaTerminado() {
-        return tempoTotalCPU <= 0;
     }
 
     public void atualizarEstado() {
         if (tempoTotalCPU <= 0) {
-            terminou = true;
+            finalizado = true;
         }
     }
 
-    public boolean estaBloqueado() {
-        return bloqueado;
-    }
 
-    public void imprimirEstado(boolean isRunning) {
+    public void print(boolean isRunning) {
+
+        String estado = "";
+
         if (isRunning) {
-            System.out.println(nome + " - " + creditos + " créditos - Running");
-        } else if (bloqueado) {
-            System.out.println(nome + " - " + creditos + " créditos - Blocked");
-        } else if (terminou) {
-            System.out.println(nome + " - " + creditos + " créditos - Exit");
+            estado = "Running";
+        } else if (estaBloqueado) {
+            estado = "Blocked";
+        } else if (getEstaTerminado()) {
+            estado = "Exit";
         } else {
-            System.out.println(nome + " - " + creditos + " créditos - Ready");
+            estado = "Ready";
         }
+
+        System.out.println("Nome: " + id
+                + " | Estado: " + estado
+                + " | Prioridade: " + prioridade
+                + " | Créditos: " + creditosRestantes
+                + " | TempoCPU: " + tempoTotalCPU
+                + " | TempoES: " + tempoES
+                + " | SurtoCPU: " + surtoCPU
+                + " | TempoBloqueado: " + tempoBloqueado);
     }
+
 }
