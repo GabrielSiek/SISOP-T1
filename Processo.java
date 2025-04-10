@@ -160,4 +160,29 @@ public class Processo {
     }
 
 
+    public void print(boolean isRunning) {
+
+        String estado = "";
+
+        if (isRunning) {
+            estado = "Running";
+        } else if (estaBloqueado) {
+            estado = "Blocked";
+        } else if (getEstaTerminado()) {
+            estado = "Exit";
+        } else {
+            estado = "Ready";
+        }
+
+        System.out.println("Nome: " + id
+                + " | Estado: " + estado
+                + " | Prioridade: " + prioridade
+                + " | Créditos: " + creditosRestantes
+                + " | TempoCPU: " + tempoTotalCPU
+                + " | TempoES: " + tempoES
+                + " | SurtoCPU: " + surtoCPU
+                + " | TempoBloqueado: " + tempoBloqueado);
+    }
+
+
 }

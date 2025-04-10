@@ -61,8 +61,9 @@ public class Escalonador {
 
             }
 
-                mostraProcessos(processoExecutando);
-
+            for (Processo p : processos) {
+                p.print(p == processoExecutando);
+            }
             tempo++;
             System.out.println();
         }
@@ -95,36 +96,6 @@ public class Escalonador {
             if (!p.getEstaTerminado()) {
                 p.creditosRestantes = p.creditosRestantes / 2 + p.prioridade;
             }
-        }
-    }
-
-
-
-    public void mostraProcessos(Processo processoAtual) {
-        System.out.println("\nTempo: " + tempo + " | Executando: "
-                + (processoAtual != null ? processoAtual.getId() : "Nenhum"));
-
-        String estado = "";
-
-        if (processoAtual.getEstaPronto()) {
-            estado = "Ready";
-        } else if (processoAtual.estaBloqueado) {
-            estado = "Blocked";
-        } else if (processoAtual.getEstaTerminado()) {
-            estado = "Finished";
-        } else {
-            estado = "Running";
-        }
-
-        for (Processo p : processos) {
-            System.out.println("Nome: " + p.getId()
-                    + " | Estado: " + estado
-                    + " | Prioridade: " + p.getPrioridade()
-                    + " | Créditos: " + p.getCreditosRestantes()
-                    + " | TempoCPU: " + p.getTempoTotalCPU()
-                    + " | TempoES: " + p.getTempoES()
-                    + " | SurtoCPU: " + p.getSurtoCPU()
-                    + " | TempoBloqueado: " + p.getTempoBloqueado());
         }
     }
 }
