@@ -15,7 +15,7 @@ public class Escalonador {
 
     public void executarEscalonamento() {
 
-        while (tempo < limiteTempoTotal && processos.stream().anyMatch(p -> !p.estaTerminado())) {
+        while (tempo < limiteTempoTotal && processos.stream().anyMatch(p -> !p.getEstaTerminado())) {
 
             try {
                 Thread.sleep(2500);
@@ -33,15 +33,15 @@ public class Escalonador {
                 continue;
             }
 
-            if (processoExecutando == null || processoExecutando.estaTerminado() || processoExecutando.estaBloqueado()
-                    || processoExecutando.creditos == 0) {
+            if (processoExecutando == null || processoExecutando.getEstaTerminado() || processoExecutando.getEstaBloqueado()
+                    || processoExecutando.creditosRestantes == 0) {
                 processoExecutando = selecionarProximoProcesso();
             }
 
             if (processoExecutando == null) {
                 System.out.println("Nenhum processo pronto para ser executado.");
             } else {
-                System.out.println("Processo selecionado: " + processoExecutando.nome);
+                System.out.println("Processo selecionado: " + processoExecutando.id);
             }
 
             if (processoExecutando != null) {
@@ -50,18 +50,18 @@ public class Escalonador {
                 processoExecutando.atualizarEstado();
             }
 
-            for (Processo p : processos) {
-                if (p != processoExecutando && p.bloqueado) {
-                    p.tempoBloqueado--;
-                    if (p.tempoBloqueado == 0) {
-                        p.desbloquear();
+            for (Processo processo : processos) {
+                if (processo != processoExecutando && processo.estaBloqueado) {
+                    processo.tempoBloqueado--;
+                    if (processo.tempoBloqueado == 0) {
+                        processo.desbloquear();
                     }
                 }
+
+
             }
 
-            for (Processo p : processos) {
-                p.imprimirEstado(p == processoExecutando);
-            }
+                mostraProcessos(processoExecutando);
 
             tempo++;
             System.out.println();
@@ -76,7 +76,7 @@ public class Escalonador {
             indiceAtual = (indiceAtual + 1) % numProcessos;
             Processo candidato = processos.get(indiceAtual);
 
-            if (candidato.estaPronto() && candidato.creditos > 0) {
+            if (candidato.getEstaPronto() && candidato.creditosRestantes > 0) {
                 return candidato;
             }
 
@@ -87,14 +87,44 @@ public class Escalonador {
     }
 
     private boolean todosProcessosSemCredito() {
-        return processos.stream().noneMatch(p -> p.creditos > 0 && !p.bloqueado && !p.estaTerminado());
+        return processos.stream().noneMatch(p -> p.creditosRestantes > 0 && !p.estaBloqueado && !p.getEstaTerminado());
     }
 
     private void redistribuirCreditos() {
         for (Processo p : processos) {
-            if (!p.estaTerminado()) {
-                p.creditos = p.creditos / 2 + p.prioridade;
+            if (!p.getEstaTerminado()) {
+                p.creditosRestantes = p.creditosRestantes / 2 + p.prioridade;
             }
+        }
+    }
+
+
+
+    public void mostraProcessos(Processo processoAtual) {
+        System.out.println("\nTempo: " + tempo + " | Executando: "
+                + (processoAtual != null ? processoAtual.getId() : "Nenhum"));
+
+        String estado = "";
+
+        if (processoAtual.getEstaPronto()) {
+            estado = "Ready";
+        } else if (processoAtual.estaBloqueado) {
+            estado = "Blocked";
+        } else if (processoAtual.getEstaTerminado()) {
+            estado = "Finished";
+        } else {
+            estado = "Running";
+        }
+
+        for (Processo p : processos) {
+            System.out.println("Nome: " + p.getId()
+                    + " | Estado: " + estado
+                    + " | Prioridade: " + p.getPrioridade()
+                    + " | Créditos: " + p.getCreditosRestantes()
+                    + " | TempoCPU: " + p.getTempoTotalCPU()
+                    + " | TempoES: " + p.getTempoES()
+                    + " | SurtoCPU: " + p.getSurtoCPU()
+                    + " | TempoBloqueado: " + p.getTempoBloqueado());
         }
     }
 }
